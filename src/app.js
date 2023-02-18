@@ -1,9 +1,5 @@
 import './style.css';
-
 import Converter from 'node-temperature-converter';
-
-// const test = new Converter.Kelvin(200);
-// const data = test.toCelsius();
 
 const APIkey = 'bec7f6138a2eed4f6069231dd5df8525';
 
@@ -34,34 +30,52 @@ const container = document.querySelector('.search-result-container');
 const weatherEl = document.querySelector('.weather');
 const windEl = document.querySelector('.wind');
 const temperatureEl = document.querySelector('.temperature');
-const button = document.querySelector('.change-unit');
+const button = document.querySelector('.change-unit-button');
 
 let arr;
+let index;
+let unit = true;
 
-// button.addEventListener('click');
+button.addEventListener('click', () => {
+  console.log(unit);
+  if (unit) {
+    unit = false;
+  } else {
+    unit = true;
+  }
+  updateWeatherResult();
+});
+
+function updateWeatherResult() {
+  const obj = arr[index];
+  const { lat, lon } = obj;
+
+  fetchWeatherData(lat, lon).then((res) => {
+    const { main, weather, wind } = res;
+
+    weatherEl.textContent = `weather: ${weather[0].description}`;
+    windEl.textContent = `speed: ${wind.speed}, deg: ${wind.deg}, gust: ${wind.gust}`;
+    temperatureEl.textContent = `feels like: ${
+      unit
+        ? new Converter.Kelvin(main.feels_like).toCelsius()
+        : new Converter.Kelvin(main.feels_like).toFahrenheit()
+    }, humidity: ${main.humidity}, temperature: ${
+      unit
+        ? new Converter.Kelvin(main.temp).toCelsius()
+        : new Converter.Kelvin(main.temp).toFahrenheit()
+    }`;
+  });
+}
 
 container.addEventListener('click', (e) => {
   if (e.target.classList[0] === 'search-result') {
-    const { index } = e.target.dataset;
-    const obj = arr[index];
-    const { lat, lon } = obj;
-    fetchWeatherData(lat, lon).then((res) => {
-      const { main, weather, wind } = res;
-      console.log(main.feels_like);
-      weatherEl.textContent = `weather: ${weather[0].description}`;
-      windEl.textContent = `speed: ${wind.speed}, deg: ${wind.deg}, gust: ${wind.gust}`;
-      temperatureEl.textContent = `feels like: ${new Converter.Kelvin(
-        main.feels_like
-      ).toCelsius()}, humidity: ${
-        main.humidity
-      }, temperature: ${new Converter.Kelvin(main.temp).toCelsius()}`;
-    });
+    index = e.target.dataset.index;
+    updateWeatherResult();
   }
 });
 
 async function updateSearchResult() {
   arr = await fetchGeoData(input.value);
-  console.log(arr);
   container.innerHTML = '';
   arr.forEach((el, idx) => {
     const div = document.createElement('div');
@@ -73,11 +87,3 @@ async function updateSearchResult() {
 }
 
 input.addEventListener('input', updateSearchResult);
-
-// button.addEventListener('click', async () => {
-//   const keyword = input.value;
-//   const geoData = await fetchGeoData(keyword);
-//   const { lat, lon } = geoData[0];
-//   const weatherData = await fetchWeatherData(lat, lon);
-//   console.log(weatherData);
-// });
