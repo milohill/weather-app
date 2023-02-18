@@ -30,19 +30,31 @@ async function fetchWeatherData(lat, lon) {
 }
 
 const input = document.querySelector('input');
-const button = document.querySelector('button');
 const container = document.querySelector('.search-result-container');
+const weatherEl = document.querySelector('.weather');
+const windEl = document.querySelector('.wind');
+const temperatureEl = document.querySelector('.temperature');
+const button = document.querySelector('.change-unit');
 
 let arr;
+
+// button.addEventListener('click');
 
 container.addEventListener('click', (e) => {
   if (e.target.classList[0] === 'search-result') {
     const { index } = e.target.dataset;
     const obj = arr[index];
     const { lat, lon } = obj;
-    console.log(lat, lon);
-    fetchWeatherData(lat, lon).then(res => {
-      console.log(res);
+    fetchWeatherData(lat, lon).then((res) => {
+      const { main, weather, wind } = res;
+      console.log(main.feels_like);
+      weatherEl.textContent = `weather: ${weather[0].description}`;
+      windEl.textContent = `speed: ${wind.speed}, deg: ${wind.deg}, gust: ${wind.gust}`;
+      temperatureEl.textContent = `feels like: ${new Converter.Kelvin(
+        main.feels_like
+      ).toCelsius()}, humidity: ${
+        main.humidity
+      }, temperature: ${new Converter.Kelvin(main.temp).toCelsius()}`;
     });
   }
 });

@@ -1,3 +1,7 @@
+.search-box {
+  min-height: 300px;
+}
+
 .search-result {
   width: 200px;
   border-bottom: 1px solid black;
