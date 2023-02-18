@@ -1,0 +1,13 @@
+.search-result {
+  width: 200px;
+  border-bottom: 1px solid black;
+}
+
+.search-result:hover {
+  background-color: lightgray;
+  cursor: pointer;
+}
+
+.search-box input {
+  width: 200px;
+}
